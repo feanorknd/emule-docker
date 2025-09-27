@@ -22,7 +22,8 @@ ENV DISPLAY=:0
 
 RUN apt update && \
     apt -y install nano unzip wget tar curl gnupg2 dos2unix python-is-python3 2to3 procps git && \
-    apt -y install xvfb x11vnc xdotool supervisor net-tools fluxbox
+    apt -y install xvfb x11vnc xdotool supervisor net-tools fluxbox && \
+    apt -y install gosu
 
 RUN dpkg --add-architecture i386 && \
     mkdir -pm755 /etc/apt/keyrings && \

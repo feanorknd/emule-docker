@@ -22,6 +22,9 @@ fi
 
 cp -n /app/config_bak/* /app/config
 
+echo "Creating logs folder..."
+mkdir -p /app/config/logs
+
 if [ $UID != "0" ]; then
     echo "Fixing permissions..."
     useradd --shell /bin/bash -u ${UID} -U -d /app -s /bin/false emule && \
@@ -31,12 +34,16 @@ if [ $UID != "0" ]; then
 fi
 
 echo "Applying configuration..."
-/app/launcher
+echo "Disabled: /app/launcher to keep current preferences file"
 
 echo "Running virtual desktop..."
 /usr/bin/supervisord -n &
 
-SLEEPSECONDS=5
+echo "Linking logs for emule..."
+if [ -d /app/logs ]; then rm -Rf /app/logs; fi
+ln -s /app/config/logs /app/logs
+
+SLEEPSECONDS=1
 if [ ${SLEEP_SECONDS} -ge 1 ]; then
     SLEEPSECONDS=${SLEEP_SECONDS}
 fi
@@ -51,4 +58,8 @@ echo "Waiting to run emule... 2"
 sleep $SLEEPSECONDS
 echo "Waiting to run emule... 1"
 sleep $SLEEPSECONDS
-/usr/bin/wine /app/emule.exe
+
+echo "Disabled: /usr/bin/wine /app/emule.exe"
+echo "Launching: exec gosu emule /usr/bin/wine /app/emule.exe"
+echo "Installed gosu in Dockerfile"
+exec gosu emule /usr/bin/wine /app/emule.exe
