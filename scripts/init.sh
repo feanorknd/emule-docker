@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 if [ ! -f "/data/download" ]; then
     echo "Creating download directory..."
     mkdir -p /data/download
@@ -36,17 +38,11 @@ fi
 echo "Applying configuration..."
 echo "Disabled: /app/launcher to keep current preferences file"
 
-echo "Running virtual desktop..."
-/usr/bin/supervisord -n &
-
 echo "Linking logs for emule..."
 if [ -d /app/logs ]; then rm -Rf /app/logs; fi
 ln -s /app/config/logs /app/logs
 
-SLEEPSECONDS=1
-if [ ${SLEEP_SECONDS} -ge 1 ]; then
-    SLEEPSECONDS=${SLEEP_SECONDS}
-fi
+SLEEPSECONDS="${SLEEP_SECONDS:-1}"
 
 echo "Waiting to run emule... 5"
 sleep $SLEEPSECONDS
@@ -59,7 +55,5 @@ sleep $SLEEPSECONDS
 echo "Waiting to run emule... 1"
 sleep $SLEEPSECONDS
 
-echo "Disabled: /usr/bin/wine /app/emule.exe"
-echo "Launching: exec gosu emule /usr/bin/wine /app/emule.exe"
-echo "Installed gosu in Dockerfile"
-exec gosu emule /usr/bin/wine /app/emule.exe
+echo "Starting supervisord (root) -> gosu emule -> xpra -> wine emule.exe"
+exec /usr/bin/supervisord -n

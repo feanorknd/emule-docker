@@ -13,17 +13,16 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV LC_ALL=C.UTF-8
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US.UTF-8
-ENV DISPLAY_WIDTH=1024
-ENV DISPLAY_HEIGHT=768
 ENV WINEPREFIX=/app/.wine
 ENV WINEARCH=win32
 ENV WINEDLLOVERRIDES=mscoree=d;mshtml=d
-ENV DISPLAY=:0
+# xpra usará su propio display virtual (no :0 de Xvfb)
+ENV DISPLAY=:100
+ENV XPRA_PORT=14500
 
 RUN apt update && \
     apt -y install nano unzip wget tar curl gnupg2 dos2unix python-is-python3 2to3 procps git && \
-    apt -y install xvfb x11vnc xdotool supervisor net-tools fluxbox && \
-    apt -y install gosu
+    apt -y install net-tools gosu xpra xauth supervisor
 
 RUN dpkg --add-architecture i386 && \
     mkdir -pm755 /etc/apt/keyrings && \
@@ -31,10 +30,6 @@ RUN dpkg --add-architecture i386 && \
     wget -NP /etc/apt/sources.list.d/ https://dl.winehq.org/wine-builds/debian/dists/bookworm/winehq-bookworm.sources
 RUN apt update && \
     apt -y install --no-install-recommends winehq-stable
-
-# Add a web UI for use purposes
-RUN git clone https://github.com/novnc/noVNC/ && ln -s /noVNC/vnc_lite.html /noVNC/index.html
-RUN git clone https://github.com/novnc/websockify/ && mv /websockify /noVNC/utils/websockify
 
 WORKDIR /app
 
@@ -50,7 +45,5 @@ COPY --from=launcher-builder /root/launcher /app
 COPY config/preferences.ini /app/preferences.ini
 
 RUN dos2unix /app/init.sh
-
-EXPOSE 4711/tcp 8080/tcp 23732/tcp 23733/udp
 
 ENTRYPOINT ["/app/init.sh"]
