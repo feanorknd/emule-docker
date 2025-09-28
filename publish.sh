@@ -9,14 +9,21 @@ then
 	exit 1
 fi
 
+if [ "$branch" == "master" ]
+then
+	tag="latest"
+else
+	tag="${branch}"
+fi
+
 echo ""
 echo "-------------------------------------------------------------------------------------------"
 echo "Build"
-docker build -t feanorknd/emule-docker:${branch} .
+docker build -t feanorknd/emule-docker:${tag} .
 echo ""
 echo "-------------------------------------------------------------------------------------------"
 echo "Push dockerhub"
-docker push feanorknd/emule-docker:${branch}
+docker push feanorknd/emule-docker:${tag}
 echo ""
 echo "-------------------------------------------------------------------------------------------"
 echo "Push github"
