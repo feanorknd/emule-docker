@@ -1,6 +1,7 @@
 #!/bin/bash
 
 branch="$1"
+clean="$2"
 
 if [ -x ${branch} ]
 then
@@ -14,6 +15,13 @@ then
 	tag="latest"
 else
 	tag="${branch}"
+fi
+
+if [ -x ${clean} ]
+then
+	cleaning=false
+else
+	cleaning=true
 fi
 
 echo ""
@@ -31,4 +39,7 @@ git add *; git commit -m "Fixed"; git push origin ${branch}
 echo ""
 echo "-------------------------------------------------------------------------------------------"
 echo "Clean"
-/usr/bin/docker system prune -f -a --volumes
+if ${cleaning}
+then
+	/usr/bin/docker system prune -f -a --volumes
+fi
