@@ -36,9 +36,6 @@ fi
 echo "Applying configuration..."
 echo "Disabled: /app/launcher to keep current preferences file"
 
-echo "Running virtual desktop..."
-/usr/bin/supervisord -n &
-
 echo "Linking logs for emule..."
 if [ -d /app/logs ]; then rm -Rf /app/logs; fi
 ln -s /app/config/logs /app/logs
@@ -70,7 +67,11 @@ gosu emule /usr/bin/wine reg add "HKCU\\Software\\Wine\\X11 Driver" \
   /v UsePrimarySelection /t REG_SZ /d 1 /f || true
 # --- fin clipboard fix ---
 
-echo "Disabled: /usr/bin/wine /app/emule.exe"
-echo "Launching: exec gosu emule /usr/bin/wine /app/emule.exe"
-echo "Installed gosu in Dockerfile"
-exec gosu emule /usr/bin/wine /app/emule.exe
+#echo "Disabled: /usr/bin/wine /app/emule.exe"
+#echo "Launching: exec gosu emule /usr/bin/wine /app/emule.exe"
+#echo "Installed gosu in Dockerfile"
+#exec gosu emule /usr/bin/wine /app/emule.exe
+
+echo "Launching everything from here..."
+/usr/bin/supervisord -n
+
