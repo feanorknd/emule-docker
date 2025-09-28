@@ -37,9 +37,9 @@ echo "--------------------------------------------------------------------------
 echo "Push github"
 git add *; git commit -m "Fixed"; git push origin ${branch}
 echo ""
-echo "-------------------------------------------------------------------------------------------"
-echo "Clean"
 if ${cleaning}
 then
+	echo "-------------------------------------------------------------------------------------------"
+	echo "Clean"
 	/usr/bin/docker system prune -f -a --volumes
 fi
