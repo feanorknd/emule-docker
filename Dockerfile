@@ -34,6 +34,10 @@ RUN dpkg --add-architecture i386 && \
 RUN apt update && \
     apt -y install --no-install-recommends winehq-stable
 
+RUN apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+
 # Add a web UI for use purposes
 RUN git clone https://github.com/novnc/noVNC/ && ln -s /noVNC/vnc_lite.html /noVNC/index.html
 RUN git clone https://github.com/novnc/websockify/ && mv /websockify /noVNC/utils/websockify
