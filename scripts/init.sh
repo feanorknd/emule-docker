@@ -1,7 +1,5 @@
 #!/bin/sh
 
-set -e
-
 if [ ! -f "/data/download" ]; then
     echo "Creating download directory..."
     mkdir -p /data/download
@@ -38,6 +36,9 @@ fi
 echo "Applying configuration..."
 echo "Disabled: /app/launcher to keep current preferences file"
 
+echo "Running virtual desktop..."
+/usr/bin/supervisord -n &
+
 echo "Linking logs for emule..."
 if [ -d /app/logs ]; then rm -Rf /app/logs; fi
 ln -s /app/config/logs /app/logs
@@ -55,5 +56,21 @@ sleep $SLEEPSECONDS
 echo "Waiting to run emule... 1"
 sleep $SLEEPSECONDS
 
-echo "Starting supervisord (root) -> gosu emule -> xpra -> wine emule.exe"
-exec /usr/bin/supervisord -n
+
+# --- Clipboard fix para Wine: usar PRIMARY selection ---
+# Define explícitamente el WINEPREFIX del usuario "emule"
+export WINEARCH="${WINEARCH:-win64}"
+export WINEPREFIX="${WINEPREFIX:-/app/.wine}"
+
+echo "Inicializando WINEPREFIX (si no existe) como usuario 'emule'..."
+gosu emule /usr/bin/wineboot --init || true
+
+echo "Aplicando clave de registro UsePrimarySelection=1..."
+gosu emule /usr/bin/wine reg add "HKCU\\Software\\Wine\\X11 Driver" \
+  /v UsePrimarySelection /t REG_SZ /d 1 /f || true
+# --- fin clipboard fix ---
+
+echo "Disabled: /usr/bin/wine /app/emule.exe"
+echo "Launching: exec gosu emule /usr/bin/wine /app/emule.exe"
+echo "Installed gosu in Dockerfile"
+exec gosu emule /usr/bin/wine /app/emule.exe
